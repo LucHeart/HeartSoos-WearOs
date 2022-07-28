@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">HeartSoos</string>
+    <string name="preference_url">pref_url</string>
+</resources>
