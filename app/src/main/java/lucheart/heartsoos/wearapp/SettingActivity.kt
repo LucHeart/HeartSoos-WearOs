@@ -19,6 +19,10 @@ class SettingActivity : Activity() {
         textUrl.setText(prefs.getString("url", "ws://192.168.2.4:666/ws/default"))
     }
 
+    fun goBack(view: View) {
+        finish()
+    }
+
     fun saveAndReconnect(view: View) {
         Log.i("Settings", "Save and Reconnect")
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)

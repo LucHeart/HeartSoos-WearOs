@@ -28,7 +28,7 @@ class HeartRateService : Service(), SensorEventListener2 {
 
     private val stopAction = "STOP_ACTION"
     private lateinit var mSensorManager: SensorManager
-    private lateinit var mHeartRateSensor: Sensor
+    private var mHeartRateSensor: Sensor? = null
     private val factory = WebSocketFactory()
     private lateinit var _websocket: WebSocket
     private lateinit var wakeLock : PowerManager.WakeLock;

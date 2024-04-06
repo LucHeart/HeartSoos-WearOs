@@ -8,14 +8,15 @@ android {
         release {
         }
     }
-    compileSdkVersion 30
+
+    compileSdk 34
 
     defaultConfig {
         applicationId "lucheart.heartsoos.wearapp"
         minSdkVersion 25
         targetSdkVersion 30
-        versionCode 9
-        versionName "1.6"
+        versionCode 12
+        versionName "1.9"
     }
 
     buildTypes {
@@ -27,6 +28,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    namespace 'lucheart.heartsoos.wearapp'
 }
 
 dependencies {
@@ -39,6 +41,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.7'
     implementation "com.neovisionaries:nv-websocket-client:2.14"
+    implementation "androidx.core:core-splashscreen:1.1.0-rc01"
 
     implementation 'androidx.wear:wear:1.1.0'
     compileOnly 'com.google.android.wearable:wearable:2.9.0'

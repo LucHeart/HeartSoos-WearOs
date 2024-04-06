@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.neovisionaries.ws.client.WebSocketState
 import kotlinx.android.synthetic.main.activity_main.*
 import lucheart.heartsoos.wearapp.HeartRateService.LocalBinder
@@ -33,6 +34,8 @@ class MainActivity : Activity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
