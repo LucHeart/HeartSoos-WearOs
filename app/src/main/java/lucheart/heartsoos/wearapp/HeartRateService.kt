@@ -26,12 +26,44 @@ import kotlin.math.roundToInt
 
 class HeartRateService : Service(), SensorEventListener2 {
 
+    private val websocketEventsListener: WebSocketAdapter = object : WebSocketAdapter() {
+        override fun onDisconnected(
+            websocket: WebSocket?,
+            serverCloseFrame: WebSocketFrame?,
+            clientCloseFrame: WebSocketFrame?,
+            closedByServer: Boolean
+        ) {
+            Log.i("WebSocket", "Disconnect")
+            setupNewWebsocket()
+        }
+
+        override fun onConnectError(websocket: WebSocket?, exception: WebSocketException?) {
+            Log.e("WebSocket", "Connect error", exception)
+            setupNewWebsocket()
+        }
+
+        override fun onConnected(
+            websocket: WebSocket?,
+            headers: MutableMap<String, MutableList<String>>?
+        ) {
+            Log.i("WebSocket", "Successfully connected")
+        }
+
+        override fun onStateChanged(websocket: WebSocket?, newState: WebSocketState?) {
+            val updateStateIntent = Intent();
+            updateStateIntent.action = "updateState"
+            updateStateIntent.putExtra("state", newState);
+            sendBroadcast(updateStateIntent)
+        }
+    }
+
+
     private val stopAction = "STOP_ACTION"
     private lateinit var mSensorManager: SensorManager
     private var mHeartRateSensor: Sensor? = null
     private val factory = WebSocketFactory()
     private lateinit var _websocket: WebSocket
-    private lateinit var wakeLock : PowerManager.WakeLock;
+    private lateinit var wakeLock: PowerManager.WakeLock
 
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -40,7 +72,8 @@ class HeartRateService : Service(), SensorEventListener2 {
                     stopSelf()
                     android.os.Process.killProcess(android.os.Process.myPid())
                 }
-                "recreate" -> recreateWebsocket()
+
+                "recreate" -> createNewWebsocket()
             }
         }
     }
@@ -71,69 +104,47 @@ class HeartRateService : Service(), SensorEventListener2 {
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
 
-        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run{
-            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "HeartSoos::BackgroundMeasuring").apply{
+        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "HeartSoos::BackgroundMeasuring").apply {
                 acquire()
             }
         }
 
         createNewWebsocket()
-    }
 
-    private fun recreateWebsocket() {
-        _websocket.disconnect()
-        createNewWebsocket()
     }
 
     private fun createNewWebsocket() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val url = prefs.getString("url", "ws://192.168.2.4:666/ws/default")
+        val url = prefs.getString("url", "ws://192.168.86.220:5566/ws/default")
+
+        if (this::_websocket.isInitialized) {
+            _websocket.removeListener(websocketEventsListener);
+            _websocket.disconnect();
+        }
+
         Log.i("WebSocket", "Creating new WebSocket for ${url}")
         _websocket = factory.createSocket(
             URI(url),
             2000
         )
-        registerEvents()
+
+        _websocket.addListener(websocketEventsListener)
         _websocket.connectAsynchronously()
-    }
-
-    private fun registerEvents() {
-        _websocket.addListener(object : WebSocketAdapter() {
-            override fun onDisconnected(
-                websocket: WebSocket?,
-                serverCloseFrame: WebSocketFrame?,
-                clientCloseFrame: WebSocketFrame?,
-                closedByServer: Boolean
-            ) {
-                Log.i("WebSocket", "Disconnect")
-                setupNewWebsocket()
-            }
-
-            override fun onConnectError(websocket: WebSocket?, exception: WebSocketException?) {
-                Log.i("WebSocket", "Connect error")
-                setupNewWebsocket()
-            }
-
-            override fun onConnected(
-                websocket: WebSocket?,
-                headers: MutableMap<String, MutableList<String>>?
-            ) {
-                Log.i("WebSocket", "Successfully connected")
-            }
-
-            override fun onStateChanged(websocket: WebSocket?, newState: WebSocketState?) {
-                val updateStateIntent = Intent();
-                updateStateIntent.action = "updateState"
-                updateStateIntent.putExtra("state", newState);
-                sendBroadcast(updateStateIntent)
-            }
-        })
     }
 
     private fun setupNewWebsocket() {
         Log.i("WebSocket", "Recreating....")
+        var currentWebsocket = _websocket
+        _websocket.disconnect()
+
+        Thread.sleep(3000)
+
+        if (currentWebsocket != _websocket) return
+
         _websocket = _websocket.recreate()
         _websocket.connectAsynchronously()
+
     }
 
     override fun onDestroy() {
@@ -141,6 +152,8 @@ class HeartRateService : Service(), SensorEventListener2 {
 
         unregisterReceiver(broadcastReceiver)
         mSensorManager.unregisterListener(this)
+
+        _websocket.removeListener(websocketEventsListener)
         _websocket.disconnect()
         wakeLock.release();
     }
