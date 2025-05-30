@@ -50,7 +50,8 @@ class HeartRateService : Service(), SensorEventListener2 {
         }
 
         override fun onStateChanged(websocket: WebSocket?, newState: WebSocketState?) {
-            val updateStateIntent = Intent();
+            val updateStateIntent = Intent()
+            updateStateIntent.setPackage("lucheart.heartsoos.wearapp")
             updateStateIntent.action = "updateState"
             updateStateIntent.putExtra("state", newState);
             sendBroadcast(updateStateIntent)
@@ -69,6 +70,7 @@ class HeartRateService : Service(), SensorEventListener2 {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 stopAction -> {
+                    Log.d("HeartRateService", "Received stop action")
                     stopSelf()
                     android.os.Process.killProcess(android.os.Process.myPid())
                 }
@@ -99,7 +101,7 @@ class HeartRateService : Service(), SensorEventListener2 {
         val filter = IntentFilter()
         filter.addAction(stopAction)
         filter.addAction("recreate")
-        registerReceiver(broadcastReceiver, filter)
+        registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
 
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
@@ -163,7 +165,7 @@ class HeartRateService : Service(), SensorEventListener2 {
         createNotificationChannel();
         val pendingIntent = PendingIntent.getActivity(
             this,
-            0, Intent(this, MainActivity::class.java), 0
+            0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = NotificationCompat.Builder(this, "hrservice")
@@ -175,8 +177,8 @@ class HeartRateService : Service(), SensorEventListener2 {
                 PendingIntent.getBroadcast(
                     this,
                     12345,
-                    Intent(stopAction),
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    Intent(stopAction).setPackage("lucheart.heartsoos.wearapp"),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )
             .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -214,6 +216,7 @@ class HeartRateService : Service(), SensorEventListener2 {
         if (heartRate == oldRoundedHeartRate) return
         oldRoundedHeartRate = heartRate
         val updateHRIntent = Intent();
+        updateHRIntent.setPackage("lucheart.heartsoos.wearapp")
         updateHRIntent.action = "updateHR"
         updateHRIntent.putExtra("bpm", heartRate);
         sendBroadcast(updateHRIntent)

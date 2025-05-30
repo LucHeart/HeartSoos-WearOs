@@ -30,7 +30,7 @@ class SettingActivity : Activity() {
             putString("url", textUrl.text.toString())
             apply()
         }
-        sendBroadcast(Intent("recreate"))
+        sendBroadcast(Intent("recreate").setPackage("lucheart.heartsoos.wearapp"))
         finish()
     }
 

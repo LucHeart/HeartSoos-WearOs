@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -39,12 +40,21 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        checkPermission(android.Manifest.permission.BODY_SENSORS, 100);
+        //checkPermission(android.Manifest.permission.BODY_SENSORS, 100);
+        checkPermission(android.Manifest.permission.BODY_SENSORS_BACKGROUND, 101);
+        checkPermission(android.Manifest.permission.FOREGROUND_SERVICE, 110);
+        checkPermission(android.Manifest.permission.FOREGROUND_SERVICE_HEALTH, 111);
+        checkPermission(android.Manifest.permission.INTERNET, 120);
+        checkPermission(android.Manifest.permission.WAKE_LOCK, 130);
+        checkPermission(android.Manifest.permission.POST_NOTIFICATIONS, 140);
+        checkPermission(android.Manifest.permission.HIGH_SAMPLING_RATE_SENSORS, 150);
+        checkPermission("android.permission.READ_HEART_RATE", 160);
+
 
         val filter = IntentFilter()
         filter.addAction("updateHR")
         filter.addAction("updateState")
-        registerReceiver(broadcastReceiver, filter)
+        registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     }
 
     fun switchToSettings(view: View) {
@@ -67,6 +77,7 @@ class MainActivity : Activity() {
 
     private fun checkPermission(permission: String, requestCode: Int) {
         if (ContextCompat.checkSelfPermission(this@MainActivity, permission) != PackageManager.PERMISSION_DENIED) return
+        Log.d("MainActivity", "Requesting permission: $permission")
         ActivityCompat.requestPermissions(this@MainActivity, arrayOf(permission), requestCode)
     }
 
@@ -105,11 +116,15 @@ class MainActivity : Activity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        Log.d("MainActivity", "onDestroy called")
         val stopIntent = Intent()
         stopIntent.action = "STOP_ACTION";
         var pendingIntentStopAction =
-            PendingIntent.getBroadcast(this, 12345, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent.getBroadcast(this, 12345, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE);
         pendingIntentStopAction.send()
+
+        unregisterReceiver(broadcastReceiver);
     }
 
 }
