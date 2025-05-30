@@ -15,11 +15,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.neovisionaries.ws.client.WebSocketState
-import kotlinx.android.synthetic.main.activity_main.*
 import lucheart.heartsoos.wearapp.HeartRateService.LocalBinder
+import lucheart.heartsoos.wearapp.databinding.ActivityMainBinding
 
 
 class MainActivity : Activity() {
+
+    private lateinit var binding: ActivityMainBinding
 
     private var service: HeartRateService? = null
 
@@ -28,17 +30,20 @@ class MainActivity : Activity() {
         @SuppressLint("SetTextI18n")
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
-                "updateHR" -> textBPM.text = "${intent.extras!!.get("bpm")} bpm"
+                "updateHR" -> binding.textBPM.text = "${intent.extras!!.get("bpm")} bpm"
                 "updateState" -> updateWebSocketState(intent.extras!!.get("state") as WebSocketState)
             }
         }
     }
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         //checkPermission(android.Manifest.permission.BODY_SENSORS, 100);
         checkPermission(android.Manifest.permission.BODY_SENSORS_BACKGROUND, 101);
@@ -71,7 +76,7 @@ class MainActivity : Activity() {
             WebSocketState.CONNECTING -> Color.argb(255, 204, 105, 0)
         }
 
-        heartButton.setColorFilter(color)
+        binding.heartButton.setColorFilter(color)
     }
 
 

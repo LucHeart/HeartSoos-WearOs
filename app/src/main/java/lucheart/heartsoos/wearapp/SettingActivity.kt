@@ -6,17 +6,19 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.preference.PreferenceManager
-import kotlinx.android.synthetic.main.activity_settings.*
+import lucheart.heartsoos.wearapp.databinding.ActivitySettingsBinding
 
 class SettingActivity : Activity() {
 
+    private lateinit var binding: ActivitySettingsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setContentView(R.layout.activity_settings)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        textUrl.setText(prefs.getString("url", "ws://192.168.2.4:666/ws/default"))
+        binding.textUrl.setText(prefs.getString("url", "ws://192.168.2.4:666/ws/default"))
     }
 
     fun goBack(view: View) {
@@ -27,7 +29,7 @@ class SettingActivity : Activity() {
         Log.i("Settings", "Save and Reconnect")
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         with (prefs.edit()) {
-            putString("url", textUrl.text.toString())
+            putString("url", binding.textUrl.text.toString())
             apply()
         }
         sendBroadcast(Intent("recreate").setPackage("lucheart.heartsoos.wearapp"))
