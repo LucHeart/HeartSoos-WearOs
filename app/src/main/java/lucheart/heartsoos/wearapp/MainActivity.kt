@@ -45,7 +45,7 @@ class MainActivity : Activity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //checkPermission(android.Manifest.permission.BODY_SENSORS, 100);
+        checkPermission(android.Manifest.permission.BODY_SENSORS, 100);
         checkPermission(android.Manifest.permission.BODY_SENSORS_BACKGROUND, 101);
         checkPermission(android.Manifest.permission.FOREGROUND_SERVICE, 110);
         checkPermission(android.Manifest.permission.FOREGROUND_SERVICE_HEALTH, 111);
