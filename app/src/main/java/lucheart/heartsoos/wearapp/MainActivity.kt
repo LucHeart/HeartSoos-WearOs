@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -44,15 +45,15 @@ class MainActivity : Activity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        checkPermission(android.Manifest.permission.BODY_SENSORS, 100)
-        checkPermission(android.Manifest.permission.BODY_SENSORS_BACKGROUND, 101)
-        checkPermission(android.Manifest.permission.FOREGROUND_SERVICE, 110)
-        checkPermission(android.Manifest.permission.FOREGROUND_SERVICE_HEALTH, 111)
-        checkPermission(android.Manifest.permission.INTERNET, 120)
-        checkPermission(android.Manifest.permission.WAKE_LOCK, 130)
-        checkPermission(android.Manifest.permission.POST_NOTIFICATIONS, 140)
-        checkPermission(android.Manifest.permission.HIGH_SAMPLING_RATE_SENSORS, 150)
-        checkPermission("android.permission.READ_HEART_RATE", 160)
+        //checkPermission(android.Manifest.permission.BODY_SENSORS, 100);
+        checkPermission(android.Manifest.permission.BODY_SENSORS_BACKGROUND, 101);
+        checkPermission(android.Manifest.permission.FOREGROUND_SERVICE, 110);
+        checkPermission(android.Manifest.permission.FOREGROUND_SERVICE_HEALTH, 111);
+        checkPermission(android.Manifest.permission.INTERNET, 120);
+        checkPermission(android.Manifest.permission.WAKE_LOCK, 130);
+        checkPermission(android.Manifest.permission.POST_NOTIFICATIONS, 140);
+        checkPermission(android.Manifest.permission.HIGH_SAMPLING_RATE_SENSORS, 150);
+        checkPermission("android.permission.READ_HEART_RATE", 160);
 
 
         val filter = IntentFilter()
@@ -61,7 +62,7 @@ class MainActivity : Activity() {
         registerReceiver(broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     }
 
-    fun switchToSettings() {
+    fun switchToSettings(view: View) {
         Intent(this, SettingActivity::class.java).also { intent ->
             startActivity(intent)
         }
@@ -103,7 +104,7 @@ class MainActivity : Activity() {
     }
 
     override fun onStart() {
-        super.onStart()
+        super.onStart();
 
         Intent(this, HeartRateService::class.java).also { intent ->
             bindService(intent, mConnection, 0)
@@ -123,12 +124,12 @@ class MainActivity : Activity() {
 
         Log.d("MainActivity", "onDestroy called")
         val stopIntent = Intent()
-        stopIntent.action = "STOP_ACTION"
-        val pendingIntentStopAction =
-            PendingIntent.getBroadcast(this, 12345, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        stopIntent.action = "STOP_ACTION";
+        var pendingIntentStopAction =
+            PendingIntent.getBroadcast(this, 12345, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE);
         pendingIntentStopAction.send()
 
-        unregisterReceiver(broadcastReceiver)
+        unregisterReceiver(broadcastReceiver);
     }
 
 }
