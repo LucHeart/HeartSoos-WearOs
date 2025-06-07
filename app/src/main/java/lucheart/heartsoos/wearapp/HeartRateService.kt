@@ -53,7 +53,7 @@ class HeartRateService : Service(), SensorEventListener2 {
             val updateStateIntent = Intent()
             updateStateIntent.setPackage("lucheart.heartsoos.wearapp")
             updateStateIntent.action = "updateState"
-            updateStateIntent.putExtra("state", newState);
+            updateStateIntent.putExtra("state", newState)
             sendBroadcast(updateStateIntent)
         }
     }
@@ -121,8 +121,8 @@ class HeartRateService : Service(), SensorEventListener2 {
         val url = prefs.getString("url", "ws://192.168.86.220:5566/ws/default")
 
         if (this::_websocket.isInitialized) {
-            _websocket.removeListener(websocketEventsListener);
-            _websocket.disconnect();
+            _websocket.removeListener(websocketEventsListener)
+            _websocket.disconnect()
         }
 
         Log.i("WebSocket", "Creating new WebSocket for ${url}")
@@ -157,12 +157,12 @@ class HeartRateService : Service(), SensorEventListener2 {
 
         _websocket.removeListener(websocketEventsListener)
         _websocket.disconnect()
-        wakeLock.release();
+        wakeLock.release()
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
 
-        createNotificationChannel();
+        createNotificationChannel()
         val pendingIntent = PendingIntent.getActivity(
             this,
             0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
@@ -183,42 +183,40 @@ class HeartRateService : Service(), SensorEventListener2 {
             )
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
-            .build();
+            .build()
 
         startForeground(1, notification)
 
         mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL)
 
-        return START_STICKY;
+        return START_STICKY
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                "hrservice",
-                "HeartWear Background Service",
-                NotificationManager.IMPORTANCE_LOW
-            )
-            val manager =
-                getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
-        }
+        val serviceChannel = NotificationChannel(
+            "hrservice",
+            "HeartWear Background Service",
+            NotificationManager.IMPORTANCE_LOW
+        )
+        val manager =
+            getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(serviceChannel)
     }
 
     override fun onAccuracyChanged(p0: Sensor, p1: Int) {}
 
     override fun onFlushCompleted(p0: Sensor) {}
 
-    private var oldRoundedHeartRate: Int = 0;
+    private var oldRoundedHeartRate: Int = 0
 
     override fun onSensorChanged(p0: SensorEvent) {
         val heartRate = p0.values[0].roundToInt()
         if (heartRate == oldRoundedHeartRate) return
         oldRoundedHeartRate = heartRate
-        val updateHRIntent = Intent();
+        val updateHRIntent = Intent()
         updateHRIntent.setPackage("lucheart.heartsoos.wearapp")
         updateHRIntent.action = "updateHR"
-        updateHRIntent.putExtra("bpm", heartRate);
+        updateHRIntent.putExtra("bpm", heartRate)
         sendBroadcast(updateHRIntent)
 
         try {
