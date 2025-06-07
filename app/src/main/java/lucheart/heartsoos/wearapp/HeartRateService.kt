@@ -1,5 +1,6 @@
 package lucheart.heartsoos.wearapp
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -13,13 +14,17 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener2
 import android.hardware.SensorManager
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
-import com.neovisionaries.ws.client.*
+import com.neovisionaries.ws.client.WebSocket
+import com.neovisionaries.ws.client.WebSocketAdapter
+import com.neovisionaries.ws.client.WebSocketException
+import com.neovisionaries.ws.client.WebSocketFactory
+import com.neovisionaries.ws.client.WebSocketFrame
+import com.neovisionaries.ws.client.WebSocketState
 import java.net.URI
 import kotlin.math.roundToInt
 
@@ -96,6 +101,7 @@ class HeartRateService : Service(), SensorEventListener2 {
         return _websocket
     }
 
+    @SuppressLint("WakelockTimeout")
     override fun onCreate() {
         super.onCreate()
         val filter = IntentFilter()
@@ -137,7 +143,7 @@ class HeartRateService : Service(), SensorEventListener2 {
 
     private fun setupNewWebsocket() {
         Log.i("WebSocket", "Recreating....")
-        var currentWebsocket = _websocket
+        val currentWebsocket = _websocket
         _websocket.disconnect()
 
         Thread.sleep(3000)

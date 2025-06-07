@@ -125,7 +125,7 @@ class MainActivity : Activity() {
         Log.d("MainActivity", "onDestroy called")
         val stopIntent = Intent()
         stopIntent.action = "STOP_ACTION"
-        var pendingIntentStopAction =
+        val pendingIntentStopAction =
             PendingIntent.getBroadcast(this, 12345, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         pendingIntentStopAction.send()
 
